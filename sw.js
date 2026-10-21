@@ -1,6 +1,6 @@
 // 离线包：把整个 APP 存进手机，之后断网、电脑关机、在外面都能打开。
 // 只在 https 正规网址下生效（局域网 http 浏览器不允许，会自动跳过）。
-var CACHE = 'wb-gongzuotai-v1';
+var CACHE = 'wb-gongzuotai-v2';
 var ASSETS = [
   './',
   './index.html',
@@ -35,18 +35,23 @@ self.addEventListener('fetch', function (e) {
   var url = new URL(req.url);
   if (url.origin !== self.location.origin) return; // 云备份之类的外部请求不管
 
-  // 页面：先用缓存秒开，同时后台悄悄拉新版（下次打开生效）
+  // 页面：优先联网拿最新版（3 秒内没回应就用本地缓存），保证更新即时生效；
+  // 完全断网时用缓存，日常离线照常打开。
   if (req.mode === 'navigate') {
     e.respondWith(
-      caches.match('./index.html').then(function (hit) {
-        var net = fetch(req).then(function (res) {
+      Promise.race([
+        fetch(req).then(function (res) {
           if (res && res.ok) {
             var copy = res.clone();
             caches.open(CACHE).then(function (c) { c.put('./index.html', copy); });
           }
           return res;
-        }).catch(function () { return hit; });
-        return hit || net;
+        }),
+        new Promise(function (_, rej) {
+          setTimeout(function () { rej(new Error('timeout')); }, 3000);
+        })
+      ]).catch(function () {
+        return caches.match('./index.html');
       })
     );
     return;
