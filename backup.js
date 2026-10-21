@@ -1,11 +1,11 @@
 // 云端自动备份：把手机里的任务/备忘/图片悄悄存一份到网上。
 // 换手机、清缓存、不小心删了，都能一键恢复。断网时静默跳过，不打扰使用。
 (function () {
-  var API = window.__WB_BACKUP_API__ || '/api/backup';
-  // 只有部署到正经网址（https）后才做云备份；本地局域网模式自动跳过，不打扰
+  var API = window.__WB_BACKUP_API__ || '';
+  // 只有明确配置了云端备份接口才启用；纯静态网页（GitHub Pages 等）没有后台服务，
+  // 不做任何尝试，也不弹提示，避免天天报「备份失败」。数据照常存在手机本地。
   function enabled() {
-    if (window.__WB_BACKUP_API__) return true;
-    return location.protocol === 'https:';
+    return !!window.__WB_BACKUP_API__;
   }
   var KEYS = [
     'wb_ec_tasks_v1',
