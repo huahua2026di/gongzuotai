@@ -195,24 +195,25 @@
   .md-back { font-size: 15px; color: var(--c-brand); padding: 4px 6px; }
   .md-top-t { font-size: 12px; color: var(--c-sub); }
   .md-del { font-size: 14px; color: var(--c-danger); padding: 6px 8px; }
-  .md-stage { flex: 1 1 auto; min-height: 0; background: #111; position: relative; display: flex; }
+  .md-stage { flex: 0 0 210px; background: #F2F2F5; position: relative; display: flex; border-top: 1px solid var(--c-line); }
   .md-gal {
-    flex: 1 1 auto; min-height: 0; display: flex; overflow-x: auto; overflow-y: hidden;
-    scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch;
+    flex: 1 1 auto; min-height: 0; display: flex; align-items: center; gap: 8px;
+    overflow-x: auto; overflow-y: hidden; padding: 0 10px;
+    scroll-snap-type: x proximity; -webkit-overflow-scrolling: touch;
   }
   .md-slide {
-    flex: 0 0 100%; width: 100%; height: 100%; scroll-snap-align: center;
+    flex: 0 0 auto; height: 100%; scroll-snap-align: center;
     display: flex; align-items: center; justify-content: center;
   }
-  .md-slide img { width: 100%; height: 100%; object-fit: contain; display: block; }
+  .md-slide img { height: 182px; width: auto; max-width: none; object-fit: contain; display: block; border-radius: 8px; background: #fff; }
   .md-empty { margin: auto; color: #9CA3AF; font-size: 14px; }
   .md-ctr {
-    position: absolute; left: 0; right: 0; bottom: 10px; text-align: center;
-    font-size: 12px; color: rgba(255,255,255,.9); pointer-events: none;
+    position: absolute; left: 0; right: 0; bottom: 4px; text-align: center;
+    font-size: 11px; color: var(--c-sub); pointer-events: none;
   }
   .md-info {
-    flex: 0 0 auto; max-height: 38%; overflow-y: auto; background: #fff;
-    padding: 14px 16px calc(14px + env(safe-area-inset-bottom));
+    flex: 1 1 auto; overflow-y: auto; background: #fff;
+    padding: 14px 16px 12px;
   }
   .md-title { font-size: 17px; font-weight: 600; word-break: break-word; }
   .md-note { margin-top: 8px; font-size: 14px; color: var(--c-sub); line-height: 1.7; white-space: pre-wrap; word-break: break-word; }
@@ -538,14 +539,14 @@
     <span class="md-top-t">已定稿 · 不能修改</span>
     <span class="md-del" id="mdDel">删除</span>
   </div>
-  <div class="md-stage">
-    <div class="md-gal" id="mdGal"></div>
-    <div class="md-ctr" id="mdCtr"></div>
-  </div>
   <div class="md-info">
     <div class="md-title" id="mdTitle"></div>
     <div class="md-note" id="mdNote"></div>
     <div class="md-time" id="mdTime"></div>
+  </div>
+  <div class="md-stage">
+    <div class="md-gal" id="mdGal"></div>
+    <div class="md-ctr" id="mdCtr"></div>
   </div>
 </div>
 
@@ -1286,13 +1287,18 @@
         gal.appendChild(s);
       });
       gal.scrollLeft = 0;
-      ctr.textContent = '1 / ' + imgs.length;
+      ctr.textContent = '1 / ' + imgs.length + ' · 点图片看大图';
       gal.onscroll = function(){
-        if (!gal.clientWidth) return;
-        var i = Math.round(gal.scrollLeft / gal.clientWidth) + 1;
-        if (i < 1) i = 1;
-        if (i > imgs.length) i = imgs.length;
-        ctr.textContent = i + ' / ' + imgs.length;
+        var slides = gal.children;
+        if (!slides.length) return;
+        var mid = gal.scrollLeft + gal.clientWidth / 2;
+        var best = 0, bestD = Infinity;
+        for (var k = 0; k < slides.length; k++) {
+          var cen = slides[k].offsetLeft + slides[k].offsetWidth / 2;
+          var dist = Math.abs(cen - mid);
+          if (dist < bestD) { bestD = dist; best = k; }
+        }
+        ctr.textContent = (best + 1) + ' / ' + slides.length + ' · 点图片看大图';
       };
     }
 
