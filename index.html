@@ -1345,23 +1345,11 @@
 
   // =================== ACTIONS ===================
   async function seedIfEmpty() {
-    if (LS.get(LS_SEEDED) === '1') {
-      if (state.tasks.length) return;
-    }
-    var samples = [
-      { taskName: '堆堆袜任务', platform: '小红书', status: '未开始', progress: 100, planDate: todayStr(), note: '', isSample: true },
-      { taskName: '堆堆袜任务', platform: '小红书', status: '未开始', progress: 0, planDate: todayStr(), note: '', isSample: true }
-    ];
-    var sampleIds = [];
-    for (var i = 0; i < samples.length; i++) {
-      var s = samples[i];
-      var isS = s.isSample;
-      delete s.isSample;
-      var id = await saveRecord(s, null);
-      if (isS && id) sampleIds.push(id);
-    }
-    lsSetSampleIds(sampleIds);
+    // 不再自动添加示例任务：清空后重新打开也不会再长回来。
+    // 首次打开就把标记写死，之后这个函数永远不再做任何事。
+    if (LS.get(LS_SEEDED) === '1') return;
     LS.set(LS_SEEDED, '1');
+    lsSetSampleIds([]);
   }
 
   async function clearSamples() {
