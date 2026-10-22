@@ -1,6 +1,6 @@
 // 离线包：把整个 APP 存进手机，之后断网、电脑关机、在外面都能打开。
 // 只在 https 正规网址下生效（局域网 http 浏览器不允许，会自动跳过）。
-var CACHE = 'wb-gongzuotai-v5';
+var CACHE = 'wb-gongzuotai-v6';
 var ASSETS = [
   './',
   './index.html',
