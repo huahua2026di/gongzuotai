@@ -839,6 +839,16 @@
     return ['日','一','二','三','四','五','六'][d];
   }
 
+  // 今日任务的排序：抖音 → 小红书 → 淘宝，其它平台排最后
+  var PLAT_ORDER = ['抖音', '小红书', '淘宝'];
+  function platRank(p) {
+    var i = PLAT_ORDER.indexOf(p);
+    return i < 0 ? PLAT_ORDER.length : i;
+  }
+  function sortByPlatform(list) {
+    return list.sort(function(a, b){ return platRank(a.platform) - platRank(b.platform); });
+  }
+
   function getTodayTasks(includeHidden) {
     var t = todayStr();
     var hidden = includeHidden ? [] : lsGetHidden();
@@ -860,7 +870,8 @@
       }
       // 明天及以后（diff < 0）不进今日栏，交给「备忘录」，避免上下重复
     });
-    return list;
+    // 按平台顺序排：抖音 → 小红书 → 淘宝；同平台内保持录入顺序，未完成的自然在前
+    return sortByPlatform(list);
   }
 
   // 排在未来日期、未完成的任务：在今日页单独一组显示，避免「新建了却找不到」
